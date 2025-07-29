@@ -4,6 +4,8 @@ import com.manitaggarwal.store.log.controller.request.LoggingRequest;
 import com.manitaggarwal.store.log.document.LogFile;
 import com.manitaggarwal.store.log.repository.LoggingRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -13,13 +15,16 @@ import java.util.Date;
 public class LoggingServiceImpl implements LoggingService {
 
     private final LoggingRepository loggingRepository;
+    private final MongoTemplate mongoTemplate;
 
     @Override
-    public void saveLogs(LoggingRequest<?> request) {
+    public ResponseEntity<?> saveLogs(LoggingRequest<?> request) {
         try {
-            loggingRepository.save(new LogFile<>(new Date(), request));
+            mongoTemplate.save(new LogFile<>(new Date(), request), request.getApplicationName());
+            return ResponseEntity.ok("Success");
         } catch (Exception e) {
             e.printStackTrace();
+            return ResponseEntity.ok("Failure");
         }
     }
 }
